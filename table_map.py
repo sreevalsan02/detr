@@ -1,38 +1,21 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
-"""
-Train and eval functions used in main.py
-"""
 import math
 import os
-import cv2
-import sys
 import argparse
 from pathlib import Path
-from typing import Iterable
-
-
-import numpy as np
 import xml.etree.ElementTree as ET
-
+import numpy as np
 import torch
-
-import util.misc as utils
-
-from models import build_model
-from datasets.tables import make_Table_transforms
-
-import matplotlib.pyplot as plt
-import time
-
 from PIL import Image
-
+from models import build_model
+import util.misc as utils
+from datasets.tables import make_Table_transforms
+import time
 
 def get_xml_and_image_paths(xml_files, image_files):
     xml_paths = []
     image_paths = []
 
     for filename in os.listdir(xml_files):
-
         if filename.endswith('.xml'):
             xml_file_path = os.path.join(xml_files, filename)
             xml_paths.append(xml_file_path)
@@ -41,11 +24,10 @@ def get_xml_and_image_paths(xml_files, image_files):
             root = tree.getroot()
 
             image_path = root.find('path').text
-            temp_img_path = os.path.join(image_files,image_path)
+            temp_img_path = os.path.join(image_files, image_path)
             image_paths.append(temp_img_path)
 
     return xml_paths, image_paths
-
 
 def calculate_iou(bbox1, bbox2):
     x_min1, y_min1, x_max1, y_max1 = bbox1
@@ -56,7 +38,6 @@ def calculate_iou(bbox1, bbox2):
 
     iou = intersection_area / union_area if union_area > 0 else 0
     return iou
-
 
 def calculate_precision_recall(gt_boxes, pred_boxes, iou_threshold):
     tp = 0
