@@ -136,7 +136,7 @@ def infer(images_path, model, postprocessors, device, output_path):
         print("processing...{}".format(filename))
         orig_image = Image.open(img_sample)
         w, h = orig_image.size
-        transform = make_face_transforms("val")
+        transform = make_Table_transforms("val")
         dummy_target = {
             "size": torch.as_tensor([int(h), int(w)]),
             "orig_size": torch.as_tensor([int(h), int(w)])
