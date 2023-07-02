@@ -134,7 +134,6 @@ def infer(images_path, model, postprocessors, device, output_path):
     duration = 0
     for img_sample in images_path:
         filename = os.path.basename(img_sample)
-        print("processing...{}".format(filename))
         orig_image = Image.open(img_sample)
         w, h = orig_image.size
         transform = make_Table_transforms("val")
@@ -193,8 +192,6 @@ def infer(images_path, model, postprocessors, device, output_path):
 
         img = np.array(orig_image)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        img = Image.fromarray(img)
-        draw = ImageDraw.Draw(img)
         
         for idx, box in enumerate(bboxes_scaled):
             bbox = box.cpu().data.numpy()
@@ -206,13 +203,16 @@ def infer(images_path, model, postprocessors, device, output_path):
                 [bbox[0], bbox[3]],
                 ])
             bbox = bbox.reshape((4, 2))
-            draw.polygon(bbox.flatten().tolist(), outline="red", width=2)
+            cv2.polylines(img, [bbox], True, (0, 255, 0), 2)
 
-        img.show()
         
         infer_time = end_t - start_t
         duration += infer_time
-        print("Processing...{} ({:.3f}s)".format(filename, infer_time))
+        
+        img_save_path = os.path.join(output_path, filename)
+        cv2.imwrite(img_save_path, img)
+        
+        print("Processed...{} in ({:.3f}s)".format(filename, infer_time))
 
     avg_duration = duration / len(images_path)
     print("Avg. Time: {:.3f}s".format(avg_duration))
