@@ -202,7 +202,7 @@ def infer(images_path, model, postprocessors, device, output_path):
                 [bbox[0], bbox[3]],
                 ])
             bbox = bbox.reshape((4, 2))
-            plt.polylines(img, [bbox], True, (0, 255, 0), 2)
+            plt.plot(bbox[:, 0], bbox[:, 1], color='red', linewidth=2)
 
         plt.imshow(img)
         plt.axis('off')  # Optional: turn off axis labels
