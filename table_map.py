@@ -24,6 +24,7 @@ from datasets.tables import make_Table_transforms
 import matplotlib.pyplot as plt
 import time
 
+from PIL import Image
 
 
 def get_xml_and_image_paths(xml_files, image_files):
