@@ -146,7 +146,7 @@ def infer(img_sample, model, postprocessors, device, output_path):
 
 
 def table_evaluate(img_path, checkpoint ):
-    parser = argparse.ArgumentParser('DETR training and evaluation script', parents=[get_args_parser()])
+    parser = argparse.ArgumentParser('DETR training and evaluation script')
     args = parser.parse_args()
     args.resume = checkpoint
 
