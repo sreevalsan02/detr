@@ -9,7 +9,7 @@ import sys
 import argparse
 from pathlib import Path
 from typing import Iterable
-import tqdm.notebook as tqdm
+
 
 import numpy as np
 import xml.etree.ElementTree as ET
@@ -108,7 +108,7 @@ def calculate_map(xml_files, image_paths):
     ap_sum75 = 0
     ap_sum90 = 0
 
-    for i, xml_file in tqdm(enumerate(xml_files),total=num_files, unit="image"):
+    for i, xml_file in enumerate(xml_files):
         tree = ET.parse(xml_file)
         root = tree.getroot()
 
