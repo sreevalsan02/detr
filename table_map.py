@@ -30,14 +30,15 @@ def get_xml_and_image_paths(xml_files, image_files):
     return xml_paths, image_paths
 
 def calculate_iou(bbox1, bbox2):
-    x_min1, y_min1, x_max1, y_max1 = bbox1
-    x_min2, y_min2, x_max2, y_max2 = bbox2
+    x_min1, y_min1, x_max1, y_max1 = np.split(bbox1, 4, axis=1)
+    x_min2, y_min2, x_max2, y_max2 = np.split(bbox2, 4, axis=1)
 
-    intersection_area = max(0, min(x_max1, x_max2) - max(x_min1, x_min2)) * max(0, min(y_max1, y_max2) - max(y_min1, y_min2))
+    intersection_area = np.maximum(0, np.minimum(x_max1, x_max2) - np.maximum(x_min1, x_min2)) * np.maximum(0, np.minimum(y_max1, y_max2) - np.maximum(y_min1, y_min2))
     union_area = (x_max1 - x_min1) * (y_max1 - y_min1) + (x_max2 - x_min2) * (y_max2 - y_min2) - intersection_area
 
-    iou = intersection_area / union_area if union_area > 0 else 0
+    iou = intersection_area / np.maximum(union_area, np.finfo(float).eps)
     return iou
+
 
 
 def calculate_precision_recall(gt_boxes, pred_boxes, iou_threshold):
