@@ -344,14 +344,13 @@ if __name__ == "__main__":
     xml_files = args.xml_files
     image_files = args.image_files
     
-    num_files = len(os.listdir(xml_files))
     xml_paths, image_paths = get_xml_and_image_paths(xml_files, image_files)
 
     mAP50, mAP75, mAP90 = calculate_map(xml_paths, image_paths)
 
-    print(f"Average Precision (AP) - 0.50 iou ({num_files} images) :", AP50)
-    print(f"Average Precision (AP) - 0.75 iou ({num_files} images) :", AP75)
-    print(f"Average Precision (AP) - 0.90 iou ({num_files} images) :", AP90)
+    print(f"Average Precision (AP) - 0.50 iou  :", AP50)
+    print(f"Average Precision (AP) - 0.75 iou  :", AP75)
+    print(f"Average Precision (AP) - 0.90 iou  :", AP90)
 
 
     
