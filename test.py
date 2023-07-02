@@ -17,7 +17,7 @@ import torch
 import util.misc as utils
 
 from models import build_model
-from datasets.tables import make_table_transforms
+from datasets.tables import make_table_Transforms
 
 import matplotlib.pyplot as plt
 import time
