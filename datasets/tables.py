@@ -156,4 +156,5 @@ def build(image_set, args):
 
     img_folder, ann_file = PATHS[image_set]
     dataset = TableDetection(img_folder, ann_file, transforms=make_Table_transforms(image_set), return_masks=args.masks)
+    print(f"Number of images in {image_set} dataset: {len(dataset)}")
     return dataset
