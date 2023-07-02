@@ -9,9 +9,9 @@ import sys
 import argparse
 from pathlib import Path
 from typing import Iterable
-from PIL import Image
+
 import numpy as np
-from PIL import ImageDraw
+import xml.etree.ElementTree as ET
 
 import torch
 
