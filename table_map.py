@@ -256,78 +256,72 @@ def get_args_parser():
 
 
 @torch.no_grad()
-def infer(images_path, model, postprocessors, device, output_path):
+def infer(img_sample, model, postprocessors, device, output_path):
     model.eval()
-    for img_sample in images_path:
-        filename = os.path.basename(img_sample)
-        orig_image = Image.open(img_sample)
-        w, h = orig_image.size
-        transform = make_Table_transforms("val")
-        dummy_target = {
-            "size": torch.as_tensor([int(h), int(w)]),
-            "orig_size": torch.as_tensor([int(h), int(w)])
-        }
-        image, targets = transform(orig_image, dummy_target)
-        image = image.unsqueeze(0)
-        image = image.to(device)
+    filename = os.path.basename(img_sample)
+    orig_image = Image.open(img_sample)
+    w, h = orig_image.size
+    transform = make_Table_transforms("val")
+    dummy_target = {
+        "size": torch.as_tensor([int(h), int(w)]),
+        "orig_size": torch.as_tensor([int(h), int(w)])
+    }
+    image, targets = transform(orig_image, dummy_target)
+    image = image.unsqueeze(0)
+    image = image.to(device)
 
+    conv_features, enc_attn_weights, dec_attn_weights = [], [], []
+    hooks = [
+        model.backbone[-2].register_forward_hook(
+            lambda self, input, output: conv_features.append(output)
+        ),
+        model.transformer.encoder.layers[-1].self_attn.register_forward_hook(
+            lambda self, input, output: enc_attn_weights.append(output[1])
+        ),
+        model.transformer.decoder.layers[-1].multihead_attn.register_forward_hook(
+            lambda self, input, output: dec_attn_weights.append(output[1])
+        )
+    ]
 
-        conv_features, enc_attn_weights, dec_attn_weights = [], [], []
-        hooks = [
-            model.backbone[-2].register_forward_hook(
-                        lambda self, input, output: conv_features.append(output)
+    start_t = time.perf_counter()
+    outputs = model(image)
+    end_t = time.perf_counter()
 
-            ),
-            model.transformer.encoder.layers[-1].self_attn.register_forward_hook(
-                        lambda self, input, output: enc_attn_weights.append(output[1])
+    outputs["pred_logits"] = outputs["pred_logits"].cpu()
+    outputs["pred_boxes"] = outputs["pred_boxes"].cpu()
 
-            ),
-            model.transformer.decoder.layers[-1].multihead_attn.register_forward_hook(
-                        lambda self, input, output: dec_attn_weights.append(output[1])
+    probas = outputs['pred_logits'].softmax(-1)[0, :, :-1]
+    keep = probas.max(-1).values > args.thresh
 
-            ),
+    bboxes_scaled = rescale_bboxes(outputs['pred_boxes'][0, keep], orig_image.size)
+    probas = probas[keep].cpu().data.numpy()
 
-        ]
+    for hook in hooks:
+        hook.remove()
 
-        start_t = time.perf_counter()
-        outputs = model(image)
-        end_t = time.perf_counter()
+    conv_features = conv_features[0]
+    enc_attn_weights = enc_attn_weights[0]
+    dec_attn_weights = dec_attn_weights[0].cpu()
 
-        outputs["pred_logits"] = outputs["pred_logits"].cpu()
-        outputs["pred_boxes"] = outputs["pred_boxes"].cpu()
+    h, w = conv_features['0'].tensors.shape[-2:]
 
-        probas = outputs['pred_logits'].softmax(-1)[0, :, :-1]
-        # keep = probas.max(-1).values > 0.85
-        keep = probas.max(-1).values > args.thresh
-
-        bboxes_scaled = rescale_bboxes(outputs['pred_boxes'][0, keep], orig_image.size)
-        probas = probas[keep].cpu().data.numpy()
-
-        for hook in hooks:
-            hook.remove()
-
-        conv_features = conv_features[0]
-        enc_attn_weights = enc_attn_weights[0]
-        dec_attn_weights = dec_attn_weights[0].cpu()
-
-        # get the feature map shape
-        h, w = conv_features['0'].tensors.shape[-2:]
-
-        if len(bboxes_scaled) == 0:
-            continue
-        
-        for idx, box in enumerate(bboxes_scaled):
-            bbox = box.cpu().data.numpy()
-            bbox = bbox.astype(np.int32)
-            bbox = np.array([
-                [bbox[0], bbox[1]],
-                [bbox[2], bbox[1]],
-                [bbox[2], bbox[3]],
-                [bbox[0], bbox[3]],
-                ])
-            bbox = bbox.reshape((4, 2))
-
+    bboxes = []
+    if len(bboxes_scaled) == 0:
         return bboxes
+    
+    for idx, box in enumerate(bboxes_scaled):
+        bbox = box.cpu().data.numpy()
+        bbox = bbox.astype(np.int32)
+        bbox = np.array([
+            [bbox[0], bbox[1]],
+            [bbox[2], bbox[1]],
+            [bbox[2], bbox[3]],
+            [bbox[0], bbox[3]],
+        ])
+        bbox = bbox.reshape((4, 2))
+        bboxes.append(bbox)
+
+    return bboxes
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser('DETR training and evaluation script', parents=[get_args_parser()])
