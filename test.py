@@ -11,14 +11,13 @@ from pathlib import Path
 from typing import Iterable
 from PIL import Image
 import numpy as np
-import matplotlib.pyplot as plt
 
 import torch
 
 import util.misc as utils
 
 from models import build_model
-from datasets.face import make_face_transforms
+from datasets.tables import make_table_transforms
 
 import matplotlib.pyplot as plt
 import time
