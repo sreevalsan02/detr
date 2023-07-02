@@ -9,6 +9,7 @@ import sys
 import argparse
 from pathlib import Path
 from typing import Iterable
+import tqdm.notebook as tqdm
 
 import numpy as np
 import xml.etree.ElementTree as ET
