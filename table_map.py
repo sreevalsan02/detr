@@ -39,6 +39,7 @@ def calculate_iou(bbox1, bbox2):
     iou = intersection_area / union_area if union_area > 0 else 0
     return iou
 
+
 def calculate_precision_recall(gt_boxes, pred_boxes, iou_threshold):
     tp = 0
     fp = 0
