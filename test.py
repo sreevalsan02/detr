@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Iterable
 from PIL import Image
 import numpy as np
+from PIL import ImageDraw
 
 import torch
 
@@ -192,6 +193,9 @@ def infer(images_path, model, postprocessors, device, output_path):
 
         img = np.array(orig_image)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = Image.fromarray(img)
+        draw = ImageDraw.Draw(img)
+        
         for idx, box in enumerate(bboxes_scaled):
             bbox = box.cpu().data.numpy()
             bbox = bbox.astype(np.int32)
@@ -202,12 +206,10 @@ def infer(images_path, model, postprocessors, device, output_path):
                 [bbox[0], bbox[3]],
                 ])
             bbox = bbox.reshape((4, 2))
-            plt.plot(bbox[:, 0], bbox[:, 1], color='red', linewidth=2)
+            draw.polygon(bbox.flatten().tolist(), outline="red", width=2)
 
-        plt.imshow(img)
-        plt.axis('off')  # Optional: turn off axis labels
-        plt.show()
-      
+        img.show()
+        
         infer_time = end_t - start_t
         duration += infer_time
         print("Processing...{} ({:.3f}s)".format(filename, infer_time))
