@@ -340,6 +340,9 @@ if __name__ == "__main__":
         checkpoint = torch.load(args.resume, map_location='cpu')
         model.load_state_dict(checkpoint['model'])
     model.to(device)
+
+    xml_files = args.xml_files
+    image_files = args.image_files
     
     num_files = len(os.listdir(xml_files))
     xml_paths, image_paths = get_xml_and_image_paths(xml_files, image_files)
