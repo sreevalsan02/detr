@@ -247,8 +247,8 @@ def get_args_parser():
 
     parser.add_argument('--thresh', default=0.5, type=float)
 
-    parser.add_argument('--xml_files', type=str)
-    parser.add_argument('--image_files',type=str)
+    parser.add_argument('--xml_files')
+    parser.add_argument('--image_files')
 
     return parser
 
