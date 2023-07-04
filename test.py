@@ -229,7 +229,13 @@ if __name__ == "__main__":
     model, _, postprocessors = build_model(args)
     if args.resume:
         checkpoint = torch.load(args.resume, map_location='cpu')
-        model.load_state_dict(checkpoint['model'])
+        del checkpoint["model"]["class_embed.weight"]
+        del checkpoint["model"]["class_embed.bias"]
+        del checkpoint["model"]["query_embed.weight"]
+        
+        # model_without_ddp.load_state_dict(checkpoint['model'],strict=False)
+        model.load_state_dict(checkpoint['model'],strict=False)
+        # model.load_state_dict(checkpoint['model'])
     model.to(device)
     image_paths = get_images(args.data_path)
 
