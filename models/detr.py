@@ -310,7 +310,10 @@ def build(args):
     # you should pass `num_classes` to be 2 (max_obj_id + 1).
     # For more details on this, check the following discussion
     # https://github.com/facebookresearch/detr/issues/108#issuecomment-650269223
-    num_classes = 2
+    if args.dataset_file == 'table_structure':
+        num_classes = 7
+    else:
+        num_classes = 2
     
     device = torch.device(args.device)
 
