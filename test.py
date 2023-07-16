@@ -203,7 +203,7 @@ def infer(images_path, model, postprocessors, device, output_path):
                 [bbox[0], bbox[3]],
                 ])
             bbox = bbox.reshape((4, 2))
-            cv2.polylines(img, [bbox], True, (0, 255, 0), 2)
+            cv2.polylines(img, [bbox], True, (0, 255, 0), 1)
 
         
         infer_time = end_t - start_t
